@@ -7,7 +7,7 @@ void initUSART4(void) {
 	//code to set up USART4 for Reception and Transmission =
     BAUD4CONbits.BRG16 = 0; 	//set baud rate scaling
     TX4STAbits.BRGH = 0; 		//high baud rate select bit
-    SP4BRGL = 103; 			//set baud rate to 103 = 9600bps
+    SP4BRGL = 51; 			//set baud rate to 51 = 19200bps
     SP4BRGH = 0;			//not used
 
     RC4STAbits.CREN = 1; 		//enable continuos reception
