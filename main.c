@@ -19,12 +19,13 @@
 void main(void) {
     LCD_Init();
     initUSART4(); 
-    char x;
+    ADC_init();
+    char x[10];
     
     while (1) {
         //LCD_sendbyte(getCharSerial4(),1);
-        x = getCharSerial4();
-        LCD_sendbyte(x,1); //send to LCD
-        sendCharSerial4(x); //echo back to screen
+        //x = getCharSerial4();
+        //LCD_sendbyte(x,1); //send to LCD
+        sendStringSerial4(x); //echo back to screen
     }
 }

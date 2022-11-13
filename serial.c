@@ -1,5 +1,7 @@
 #include <xc.h>
 #include "serial.h"
+#include "ADC.h"
+#include "LCD.h"
 
 void initUSART4(void) {
     RC0PPS = 0x12; // Map EUSART4 TX to RC0
@@ -30,7 +32,20 @@ void sendCharSerial4(char charToSend) {
 
 //function to send a string over the serial interface
 void sendStringSerial4(char *string){
-	//Hint: look at how you did this for the LCD lab 
+	//code to calculate the inegeter and fractions part of a ADC value
+    int int_part;
+    int frac_part;
+    float num = 255/3.3;
+    int_part = ADC_getval()/num;
+    frac_part = (ADC_getval()*100)/num - int_part*100;
+    sprintf(string, "V = %u.%02u, ",int_part, frac_part);
+    
+    while(*string !=0)
+    {
+        sendCharSerial4(*string++);
+    } 
+    __delay_ms(1000);
+
 }
 
 
