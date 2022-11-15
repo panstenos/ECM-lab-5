@@ -8,6 +8,8 @@
 #define RX_BUF_SIZE 20
 #define TX_BUF_SIZE 60
 
+#define ADC_BUF_SIZE 60
+
 
 //variables for a software RX/TX buffer
 volatile char EUSART4RXbuf[RX_BUF_SIZE];
@@ -17,6 +19,9 @@ volatile char RxBufReadCnt=0;
 volatile char EUSART4TXbuf[TX_BUF_SIZE];
 volatile char TxBufWriteCnt=0;
 volatile char TxBufReadCnt=0;
+
+volatile int ADCbuf[ADC_BUF_SIZE];
+volatile char ADCbufCnt = 0;
 
 
 //basic EUSART funcitons
@@ -30,12 +35,13 @@ char getCharFromRxBuf(void);
 void putCharToRxBuf(char byte);
 char isDataInRxBuf (void);
 
+void saveADCval(void);
+void putValToADCbuf(unsigned int val);
+
 // circular Tx buffer functions (Ex3+)
 char getCharFromTxBuf(void);
 void putCharToTxBuf(char byte);
 char isDataInTxBuf (void);
 void TxBufferedString(char *string); //Send buffered string with interrupts
 void sendTxBuf(void);
-
-
 #endif

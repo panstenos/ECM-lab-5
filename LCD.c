@@ -136,7 +136,6 @@ void LCD_setline(int line)
 
 void LCD_sendstring(char *string){ //input two strings
         LCD_setline(0); //write first input in the first line
-
         while(*string !=0){ //write all the characters of each element
                 LCD_sendbyte(*string++,1);
         }

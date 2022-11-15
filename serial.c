@@ -15,6 +15,10 @@ void initUSART4(void) {
     RC4STAbits.CREN = 1; 		//enable continuos reception
     TX4STAbits.TXEN = 1; 		//enable transmitter
     RC4STAbits.SPEN = 1; 		//enable serial port	
+    
+    for(int i = 0; i < ADC_BUF_SIZE;i++){
+        ADCbuf[i] = -1;
+    }
 }
 
 //function to check the TX reg is free and send a byte
@@ -38,6 +42,17 @@ void sendStringSerial4(char *string){
     sprintf(string, "V = %u.%02u, ",int_part, frac_part);
     sendTxBuf();
     __delay_ms(100);
+}
+
+void saveADCval(){
+    unsigned int adcval = ADC_getval();
+
+    char string[4];
+    LCD_clear();
+    sprintf(string,"%03u",adcval);
+    LCD_sendstring(string);
+    
+    putValToADCbuf(adcval);
 }
 
 
@@ -95,4 +110,9 @@ void TxBufferedString(char *string){
 //your ISR needs to be setup to turn this interrupt off once the buffer is empty
 void sendTxBuf(void){
     if (isDataInTxBuf()) {PIE4bits.TX4IE=1;} //enable the TX interrupt to send data
+}
+
+void putValToADCbuf(unsigned int val){
+    if(ADCbufCnt == ADC_BUF_SIZE){ADCbufCnt = 0;}
+    ADCbuf[ADCbufCnt++] = val;
 }

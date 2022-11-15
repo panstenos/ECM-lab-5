@@ -21,15 +21,9 @@ void main(void) {
     initUSART4(); 
     ADC_init();
     Interrupts_init();
-    char x[10];
+    Timer0_init();
     
     while (1) {
-        //LCD_sendbyte(getCharSerial4(),1);
-        //x = getCharSerial4();
-        //LCD_sendbyte(x,1); //send to LCD
-        sendStringSerial4(x); //echo back to screen
-        while(isDataInRxBuf()){
-            LCD_sendbyte(getCharFromRxBuf(),1);
-        }
+
     }
 }
