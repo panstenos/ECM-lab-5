@@ -1,6 +1,6 @@
 #include <xc.h>
 #include "interrupts.h"
-#include "timers.h"
+#include "serial.h"
 
 //extern int seconds;
 /************************************
@@ -10,8 +10,8 @@
 void Interrupts_init(void)
 {   
     INTCONbits.PEIE = 1;    //turns on all the peripheral interrupts
-    PIE0bits.TMR0IE = 1;    // enable Timer0 interrupt
-    PIE2bits.C1IE = 1;    //enable the comparator interrupt bit
+    PIE4bits.RC4IE=1;	//receive interrupt
+    PIE4bits.TX4IE=1;	//transmit interrupt (only turn on when you have more than one byte to send)
     INTCONbits.GIE = 1; 	//turn on interrupts globally (when this is off, all interrupts are deactivated)    
 }
 
@@ -21,16 +21,15 @@ void Interrupts_init(void)
 ************************************/
 void __interrupt(high_priority) HighISR()
 {   
-    if(PIR0bits.TMR0IF == 1){//check the interrupt flag
-    increment_seconds(); //call the function to increment the seconds
-    // set the timer to reset at 3035 every time the it overflows
-    if(test_mode == 0){
-            TMR0H=0b00001011;            
-            TMR0L=0b11011011;
-    }else{
-            TMR0H=0;            
-            TMR0L=0;
+    if(PIR4bits.TX4IF){
+        if(isDataInTxBuf()){
+            TX4REG = getCharFromTxBuf();
+        }else{
+            PIE4bits.TX4IE=0;
+        }
     }
-        PIR0bits.TMR0IF = 0; // turn flag off
-	}
+    
+    if (PIR4bits.RC4IF){//wait for the data to arrive
+        putCharToRxBuf(RC4REG); //return byte in RCREG
+    }
 }

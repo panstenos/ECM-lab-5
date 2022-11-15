@@ -17,17 +17,11 @@ void initUSART4(void) {
     RC4STAbits.SPEN = 1; 		//enable serial port	
 }
 
-//function to wait for a byte to arrive on serial port and read it once it does 
-char getCharSerial4(void) {
-    while (!PIR4bits.RC4IF);//wait for the data to arrive
-    return RC4REG; //return byte in RCREG
-}
-
 //function to check the TX reg is free and send a byte
-void sendCharSerial4(char charToSend) {
+/*void sendCharSerial4(char charToSend) {
     while (!PIR4bits.TX4IF); // wait for flag to be set
     TX4REG = charToSend; //transfer char to transmitter
-}
+}*/
 
 
 //function to send a string over the serial interface
@@ -40,12 +34,10 @@ void sendStringSerial4(char *string){
     frac_part = (ADC_getval()*100)/num - int_part*100;
     sprintf(string, "V = %u.%02u, ",int_part, frac_part);
     
-    while(*string !=0)
-    {
-        sendCharSerial4(*string++);
-    } 
-    __delay_ms(1000);
-
+    TxBufferedString(string);
+    sprintf(string, "V = %u.%02u, ",int_part, frac_part);
+    sendTxBuf();
+    __delay_ms(100);
 }
 
 
@@ -93,7 +85,10 @@ char isDataInTxBuf (void){
 
 //add a string to the buffer
 void TxBufferedString(char *string){
-	//Hint: look at how you did this for the LCD lab 
+	while(*string !=0)
+    {
+        putCharToTxBuf(*string++);
+    }
 }
 
 //initialise interrupt driven transmission of the Tx buf

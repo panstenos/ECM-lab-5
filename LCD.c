@@ -134,35 +134,13 @@ void LCD_setline(int line)
  * Function to send string to LCD screen
 ************************************/
 
-void LCD_sendstring(char *strlst[8]) //input two strings
-{       int i;
-        for (i=0;i<8;i++){ //repeat for every element in the list
-            LCD_setline(i); //write first input in the first line
+void LCD_sendstring(char *string){ //input two strings
+        LCD_setline(0); //write first input in the first line
+
+        while(*string !=0){ //write all the characters of each element
+                LCD_sendbyte(*string++,1);
+        }
             
-            while(*strlst[i] !=0){ //write all the characters of each element
-                LCD_sendbyte(*strlst[i]++,1);
-                }
-            
-            LCD_sendbyte (0xC2,0);
-            LCD_sendbyte (0b00111010,1); // :
-            LCD_sendbyte (0xC5,0);
-            LCD_sendbyte (0b00101110,1); // .
-            LCD_sendbyte (0xC8,0);
-            LCD_sendbyte (0b00100000,1); //
-            LCD_sendbyte (0xC9,0);
-            LCD_sendbyte (0b00100000,1); //
-            LCD_sendbyte (0xCA,0);
-            LCD_sendbyte (0b00100000,1); //
-            LCD_sendbyte (0xCB,0);
-            LCD_sendbyte (0b00100000,1); //
-            LCD_sendbyte (0xCC,0);
-            LCD_sendbyte (0b00100000,1); //
-            LCD_sendbyte (0x88,0);
-            LCD_sendbyte (0b00101111,1); // /
-            LCD_sendbyte (0x8B,0);
-            LCD_sendbyte (0b00101111,1); // /
-    }
-    
 } 
 
 /************************************
