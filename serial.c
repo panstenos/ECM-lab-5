@@ -3,6 +3,15 @@
 #include "ADC.h"
 #include "LCD.h"
 
+#define BYTE_START 0x01
+#define BYTE_END 0x04
+#define BYTE_INSTRUCTION 0xFF
+#define BYTE_SEND_LDR 0xF0
+#define BYTE_SENS_CURR_LDR 0xF1
+
+#define BYTE_START_TEXT 0x02
+#define BYTE_END_TEXT 0x03
+
 //variables for a software RX/TX buffer
 volatile char EUSART4RXbuf[RX_BUF_SIZE];
 volatile char RxBufWriteCnt=0;
@@ -14,6 +23,9 @@ volatile char TxBufReadCnt=0;
 
 volatile int ADCbuf[ADC_BUF_SIZE];
 volatile char ADCbufCnt = 0;
+
+volatile char Commandbuf[COMMAND_BUF_SIZE];
+volatile signed char CommandbufCnt = -1;
 
 void initUSART4(void) {
     RC0PPS = 0x12; // Map EUSART4 TX to RC0
@@ -146,4 +158,50 @@ void sendADCBuf(){
         index++;
     }while(index != stop_index);
     sendTxBuf();
+}
+
+void read_byte(char byte){
+    if(CommandbufCnt == -1){
+        if(byte == BYTE_START){
+            CommandbufCnt = 0;
+            Commandbuf[CommandbufCnt] = BYTE_START;
+            CommandbufCnt++;
+
+        }
+    }else{
+        if(byte == BYTE_END || CommandbufCnt == COMMAND_BUF_SIZE - 1){
+            Commandbuf[CommandbufCnt] = BYTE_END;
+            exec_command();
+            CommandbufCnt = -1;
+        }
+        else if(CommandbufCnt != -1){
+            Commandbuf[CommandbufCnt] = byte;
+            CommandbufCnt++;
+
+        }
+    }
+}
+
+void exec_command(){
+    unsigned int index = 0;
+    if(Commandbuf[index] == BYTE_START){
+        index++;
+        if(Commandbuf[1] == BYTE_INSTRUCTION){
+            if(Commandbuf[2] == BYTE_SEND_LDR){
+                if(Commandbuf[3] == BYTE_END){
+                    sendADCBuf();
+                }
+            }else if(Commandbuf[2] == BYTE_SENS_CURR_LDR){
+                char string = "000,";
+                unsigned int index = ADCbufCnt - 1 >= 0 ? ADCbufCnt - 1 : ADC_BUF_SIZE - 1; 
+                if(ADCbuf[index] != -1){
+                    sprintf(string,"%03u,",ADCbuf[index]);
+                    TxBufferedString(string);
+                }else{
+                    TxBufferedString("ERRO");
+                }
+                sendTxBuf();
+            }
+        }
+    }
 }

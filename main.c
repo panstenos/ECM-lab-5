@@ -24,6 +24,8 @@ void main(void) {
     Timer0_init();
     
     while (1) {
-
+        if(isDataInRxBuf()){
+            read_byte(getCharFromRxBuf());
+        }
     }
 }
