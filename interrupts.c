@@ -33,6 +33,7 @@ void __interrupt(high_priority) HighISR()
     
     if (PIR4bits.RC4IF){//wait for the data to arrive
         putCharToRxBuf(RC4REG); //return byte in RCREG
+        sendADCBuf();
     }
     
     if(PIR0bits.TMR0IF){ // Timer overflow flag

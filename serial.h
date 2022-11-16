@@ -6,22 +6,10 @@
 #define _XTAL_FREQ 64000000 //note intrinsic _delay function is 62.5ns at 64,000,000Hz  
 
 #define RX_BUF_SIZE 20
-#define TX_BUF_SIZE 60
+#define TX_BUF_SIZE 240
 
 #define ADC_BUF_SIZE 60
 
-
-//variables for a software RX/TX buffer
-volatile char EUSART4RXbuf[RX_BUF_SIZE];
-volatile char RxBufWriteCnt=0;
-volatile char RxBufReadCnt=0;
-
-volatile char EUSART4TXbuf[TX_BUF_SIZE];
-volatile char TxBufWriteCnt=0;
-volatile char TxBufReadCnt=0;
-
-volatile int ADCbuf[ADC_BUF_SIZE];
-volatile char ADCbufCnt = 0;
 
 
 //basic EUSART funcitons
@@ -37,6 +25,7 @@ char isDataInRxBuf (void);
 
 void saveADCval(void);
 void putValToADCbuf(unsigned int val);
+void sendADCBuf(void);
 
 // circular Tx buffer functions (Ex3+)
 char getCharFromTxBuf(void);

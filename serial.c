@@ -3,6 +3,18 @@
 #include "ADC.h"
 #include "LCD.h"
 
+//variables for a software RX/TX buffer
+volatile char EUSART4RXbuf[RX_BUF_SIZE];
+volatile char RxBufWriteCnt=0;
+volatile char RxBufReadCnt=0;
+
+char EUSART4TXbuf[TX_BUF_SIZE];
+volatile char TxBufWriteCnt=0;
+volatile char TxBufReadCnt=0;
+
+volatile int ADCbuf[ADC_BUF_SIZE];
+volatile char ADCbufCnt = 0;
+
 void initUSART4(void) {
     RC0PPS = 0x12; // Map EUSART4 TX to RC0
     RX4PPS = 0x11; // RX is RC1
@@ -81,8 +93,8 @@ char isDataInRxBuf (void){
 // circular buffer functions for TX
 // retrieve a byte from the buffer
 char getCharFromTxBuf(void){
-    if (TxBufReadCnt>=TX_BUF_SIZE) {TxBufReadCnt=0;} 
     return EUSART4TXbuf[TxBufReadCnt++];
+    if (TxBufReadCnt>=TX_BUF_SIZE) {TxBufReadCnt=0;} 
 }
 
 // add a byte to the buffer
@@ -115,4 +127,23 @@ void sendTxBuf(void){
 void putValToADCbuf(unsigned int val){
     if(ADCbufCnt == ADC_BUF_SIZE){ADCbufCnt = 0;}
     ADCbuf[ADCbufCnt++] = val;
+}
+
+void sendADCBuf(){
+    char string = "000,";
+    unsigned int stop_index = ADCbufCnt;
+    unsigned int index = stop_index;
+    do{
+        if(index == ADC_BUF_SIZE){
+            index = 0;
+        }
+        if(ADCbuf[index] == -1){
+            index++;
+            continue;
+        }
+        sprintf(string,"%03u,",ADCbuf[index]);
+        TxBufferedString(string);
+        index++;
+    }while(index != stop_index);
+    sendTxBuf();
 }
